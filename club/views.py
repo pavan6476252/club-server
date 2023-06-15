@@ -102,6 +102,9 @@ class ProductList(APIView):
         serializer = ProductSerializer(queryset, many=True)
         return Response(serializer.data)
 
-def csrf_failure_view(request):
 
-    return JsonResponse("sorry pawan u dont have access")
+def csrf_failure_view(request):
+    return JsonResponse(
+        {"message": "Sorry, you don't have access."},
+        status=403
+    )
