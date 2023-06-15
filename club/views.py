@@ -51,11 +51,12 @@ class UserSignupView(APIView):
 class UserLoginView(CustomTokenObtainPairView):
     permission_classes = (AllowAny,)
 
+
 class UserLogoutView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    async def post(self, request):
+    def post(self, request):
         refresh_token = request.data.get('refresh_token')
         authorization_header = request.headers.get('Authorization')
 
@@ -69,9 +70,16 @@ class UserLogoutView(APIView):
                 access_token = decoded_token.access_token
 
                 # Blacklist the access token
-                await sync_to_async(access_token.blacklist)()
+                access_token.blacklist()
 
-                return Response({'message': 'Successfully logged out.'}, status=status.HTTP_200_OK)
+                # Generate a new refresh token and access token
+                new_refresh = RefreshToken.for_user(request.user)
+                new_access = new_refresh.access_token
+
+                return Response({
+                    'refresh': str(new_refresh),
+                    'access': str(new_access)
+                }, status=status.HTTP_200_OK)
             except TokenError as e:
                 return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
         else:
