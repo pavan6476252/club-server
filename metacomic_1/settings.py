@@ -88,7 +88,7 @@ REST_FRAMEWORK = {
         # Other authentication classes if needed
     ],
 }
-
+CSRF_FAILURE_VIEW = 'club.views.csrf_failure_view'  # Customize the view for CSRF failure
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
@@ -106,8 +106,10 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+# Security settings
+SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE=True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators

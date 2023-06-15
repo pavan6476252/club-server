@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from asgiref.sync import async_to_sync
+from django.http import JsonResponse
 
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -90,13 +91,17 @@ class RestosViewSet(APIView):
     async def order_queryset(self, queryset):
         # Perform any additional asynchronous operations on the queryset
         return queryset.order_by('-membership')
-
+    
 class ProductList(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    async def get(self, request, format=None):
+    def get(self, request, format=None):
         resto_id = request.query_params.get('resto_id')
         queryset = Products.objects.filter(resto_id=resto_id)
         serializer = ProductSerializer(queryset, many=True)
         return Response(serializer.data)
+
+def csrf_failure_view(request):
+
+    return JsonResponse("sorry pawan u dont have access")
