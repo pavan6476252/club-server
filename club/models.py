@@ -72,7 +72,7 @@ class Bookings(models.Model):
     resto_id = models.ForeignKey(Restos, on_delete=models.CASCADE)
     uid = models.ForeignKey(User, on_delete=models.CASCADE)
     booking_date = models.DateTimeField()
-    product_list=models.JSONField()
+    product_list=models.JSONField(default=None)
 
 
 
