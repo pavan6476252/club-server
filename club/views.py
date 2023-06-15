@@ -1,6 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from asgiref.sync import async_to_sync
+
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User,Restos,Products
@@ -12,11 +14,10 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import viewsets
-class blocks(APIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
-    def get(self,request):
-        return Response("xcvb")
+import asyncio
+from asgiref.sync import sync_to_async
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -25,7 +26,6 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['uuid'] = str(user.uuid)
         return token
 
-
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
@@ -33,30 +33,28 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         self.serializer_class.request = request
         return super().post(request, *args, **kwargs)
 
-
+@method_decorator(csrf_exempt, name='dispatch')
 class UserSignupView(APIView):
     permission_classes = (AllowAny,)
 
-    def post(self, request):
+    async def post(self, request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
-            user = serializer.save()
+            user = await sync_to_async(serializer.save)()
             refresh = RefreshToken.for_user(user)
             return Response({'refresh': str(refresh), 'access': str(refresh.access_token)}, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+@method_decorator(csrf_exempt, name='dispatch')
 class UserLoginView(CustomTokenObtainPairView):
     permission_classes = (AllowAny,)
 
-
-
 class UserLogoutView(APIView):
-    authentication_classes=[JWTAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def post(self, request):
+    async def post(self, request):
         refresh_token = request.data.get('refresh_token')
         authorization_header = request.headers.get('Authorization')
 
@@ -70,7 +68,7 @@ class UserLogoutView(APIView):
                 access_token = decoded_token.access_token
 
                 # Blacklist the access token
-                access_token.blacklist()
+                await sync_to_async(access_token.blacklist)()
 
                 return Response({'message': 'Successfully logged out.'}, status=status.HTTP_200_OK)
             except TokenError as e:
@@ -85,14 +83,20 @@ class RestosViewSet(APIView):
         membership = self.request.query_params.get('membership')
         if membership:
             queryset = queryset.filter(membership=membership)
-        restos = queryset.order_by('-membership')
+        restos = async_to_sync(self.order_queryset)(queryset)
         serializer = RestosSerializer(restos, many=True)
         return Response(serializer.data)
- 
-class Product_list(APIView):
-    def get(self, request, format=None):
-        queryset = Products.objects.filter(resto_=self.request.query_params.get('resto_name')).all()
-        serializer=ProductSerializer(queryset,many=True)
+
+    async def order_queryset(self, queryset):
+        # Perform any additional asynchronous operations on the queryset
+        return queryset.order_by('-membership')
+
+class ProductList(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    async def get(self, request, format=None):
+        resto_id = request.query_params.get('resto_id')
+        queryset = Products.objects.filter(resto_id=resto_id)
+        serializer = ProductSerializer(queryset, many=True)
         return Response(serializer.data)
-
-

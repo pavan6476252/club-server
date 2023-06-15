@@ -72,6 +72,7 @@ class Bookings(models.Model):
     resto_id = models.ForeignKey(Restos, on_delete=models.CASCADE)
     uid = models.ForeignKey(User, on_delete=models.CASCADE)
     booking_date = models.DateTimeField()
+    product_list=models.JSONField()
 
 
 
@@ -85,11 +86,8 @@ class Products(models.Model):
     product_images = models.CharField(max_length=255)
     veg = models.BooleanField()
     product_category = models.CharField(max_length=255)
-    
-class product_list(models.Model):
-    booking_id = models.ForeignKey(Bookings, on_delete=models.CASCADE)
-    product_id = models.ForeignKey(Products, on_delete=models.CASCADE)
-    quantity = models.IntegerField(default=1)
+
+
 
 
 class Ratings(models.Model):
@@ -97,7 +95,6 @@ class Ratings(models.Model):
     resto_id = models.ForeignKey(Restos, on_delete=models.CASCADE)
     uid = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
-    photo_url = models.CharField(max_length=255)
     comment = models.TextField()
     rating = models.IntegerField()
     timestamp = models.IntegerField()

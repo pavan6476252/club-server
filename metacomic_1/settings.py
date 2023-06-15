@@ -75,7 +75,9 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "metacomic_1.wsgi.application"
+# WSGI_APPLICATION = "metacomic_1.wsgi.application"
+ASGI_APPLICATION = "metacomic_1.asgi.application"
+
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
