@@ -104,6 +104,29 @@ class ProductList(APIView):
 
 
 
+
+
+class RestaurantSearch(APIView):
+    # permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def get(self, request, format=None):
+        resto_name = request.query_params.get('resto_name', '')
+        try:
+            restaurant = Restos.objects.filter(resto_name__icontains=resto_name)
+            serializer = RestosSerializer(restaurant, many=True)
+            return Response(serializer.data, status=200)
+        except Restos.DoesNotExist:
+            return Response({'error': 'Restaurant not found'}, status=404)
+
+    
+
+
+
+
+
+
+   
 def csrf_failure_view(request, reason=""):
     # Your view logic here
     # Handle the CSRF failure and provide an appropriate response
