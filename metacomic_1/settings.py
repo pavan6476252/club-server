@@ -54,6 +54,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = "metacomic_1.urls"
@@ -75,8 +76,8 @@ TEMPLATES = [
     },
 ]
 
-# WSGI_APPLICATION = "metacomic_1.wsgi.application"
-ASGI_APPLICATION = "metacomic_1.asgi.application"
+WSGI_APPLICATION = "metacomic_1.wsgi.application"
+# ASGI_APPLICATION = "metacomic_1.asgi.application"
 
 
 REST_FRAMEWORK = {
@@ -103,7 +104,8 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
-
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE=True
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -123,6 +125,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
