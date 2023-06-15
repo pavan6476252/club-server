@@ -3,15 +3,15 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import User
-from .serializers import UserSerializer
+from .models import User,Restos,Products
+from .serializers import UserSerializer,RestosSerializer,ProductSerializer
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from rest_framework import viewsets
 class blocks(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -77,3 +77,22 @@ class UserLogoutView(APIView):
                 return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
         else:
             return Response({'error': 'Refresh token not provided.'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class RestosViewSet(APIView):
+    def get(self, request, format=None):
+        queryset = Restos.objects.all()
+        membership = self.request.query_params.get('membership')
+        if membership:
+            queryset = queryset.filter(membership=membership)
+        restos = queryset.order_by('-membership')
+        serializer = RestosSerializer(restos, many=True)
+        return Response(serializer.data)
+ 
+class Product_list(APIView):
+    def get(self, request, format=None):
+        queryset = Products.objects.filter(resto_=self.request.query_params.get('resto_name')).all()
+        serializer=ProductSerializer(queryset,many=True)
+        return Response(serializer.data)
+
+

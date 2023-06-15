@@ -27,6 +27,13 @@ class RestoOwners(models.Model):
     location = models.CharField(max_length=255)
 
 class Restos(models.Model):
+    MEMBERSHIP_CHOICES = [
+        ('0','normal'),
+        ('1', 'Basic'),
+        ('2', 'Standard'),
+        ('3', 'Premium'),
+    ]
+
     resto_id = models.AutoField(primary_key=True)
     uid = models.ForeignKey(RestoOwners, on_delete=models.CASCADE)
     resto_name = models.CharField(max_length=255)
@@ -35,13 +42,7 @@ class Restos(models.Model):
     resto_certifications = models.CharField(max_length=255)
     view_rate = models.IntegerField()
     resto_registered_at = models.DateTimeField(auto_now_add=True)
-
-
-class Memberships(models.Model):
-    uid = models.OneToOneField(Customers, on_delete=models.CASCADE, primary_key=True)
-    membership_type = models.CharField(max_length=255)
-    created_at = models.DateTimeField(auto_now_add=True)
-    expiry_at = models.DateTimeField(null=True)
+    membership = models.CharField(choices=MEMBERSHIP_CHOICES, max_length=255,default=0)
 
 
 class Events(models.Model):
@@ -73,6 +74,7 @@ class Bookings(models.Model):
     booking_date = models.DateTimeField()
 
 
+
 class Products(models.Model):
     product_id = models.AutoField(primary_key=True)
     resto_id = models.ForeignKey(Restos, on_delete=models.CASCADE)
@@ -83,6 +85,11 @@ class Products(models.Model):
     product_images = models.CharField(max_length=255)
     veg = models.BooleanField()
     product_category = models.CharField(max_length=255)
+    
+class product_list(models.Model):
+    booking_id = models.ForeignKey(Bookings, on_delete=models.CASCADE)
+    product_id = models.ForeignKey(Products, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=1)
 
 
 class Ratings(models.Model):
