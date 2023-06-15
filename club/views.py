@@ -103,8 +103,10 @@ class ProductList(APIView):
         return Response(serializer.data)
 
 
-def csrf_failure_view(request):
-    return JsonResponse(
-        {"message": "Sorry, you don't have access."},
-        status=403
-    )
+
+def csrf_failure_view(request, reason=""):
+    # Your view logic here
+    # Handle the CSRF failure and provide an appropriate response
+    # You can customize the view based on your requirements
+    return JsonResponse({"message": "CSRF verification failed."}, status=403)
+
