@@ -26,7 +26,9 @@ SECRET_KEY = "django-insecure-kuve**!%o=xua)p1mwe=wv&gk7=_%u%yaw8ax66&67@bcl1bsb
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+# ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['club-production.up.railway.app']
+
 
 
 # Application definition
