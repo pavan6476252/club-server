@@ -1,21 +1,22 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <title>About Me</title>
     <style>
         body {
             background-color: #000;
-            color: #fff;
-            font-family: Arial, sans-serif;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
             margin: 0;
             padding: 20px;
-            text-align: center;
+            text-align: left;
         }
 
         h1 {
             font-size: 36px;
             margin-bottom: 20px;
+            color: #00eaff;
+            text-decoration: underline;
         }
 
         p {
@@ -24,35 +25,68 @@
         }
 
         .highlight {
-            color: #00eaff;
+            color: #ff6600;
             font-weight: bold;
         }
 
         .container {
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
             height: 100vh;
         }
+
+        /* Media Queries for 14-inch Laptops */
+        @media only screen and (max-width: 14.9in) {
+            body {
+                font-size: 16px;
+            }
+
+            h1 {
+                font-size: 30px;
+                margin-bottom: 10px;
+            }
+        }
+
+        /* Media Queries for 15.6-inch Laptops */
+        @media only screen and (min-width: 14.9in) and (max-width: 15.9in) {
+            body {
+                font-size: 18px;
+            }
+        }
     </style>
 </head>
-
 <body>
     <div class="container">
-        <h1>About Me</h1>
+        <h1><span class="highlight">APIs Description</span></h1>
         <p>
-            Hello, my name is <span class="highlight">Your Name</span> and I'm passionate about the cyberpunk genre.
-        </p>
-        <p>
-            I love the futuristic aesthetics, the dystopian settings, and the thrilling stories that cyberpunk offers. It's
-            a genre that allows me to explore the possibilities of technology, society, and human nature in a unique way.
-        </p>
-        <p>
-            On this page, I'll be sharing my thoughts, recommendations, and creations related to cyberpunk. Join me in this
-            exciting journey as we dive deep into the neon-lit streets and explore the dark corners of the cyberpunk world.
+            <strong>admin/</strong> - Django admin panel<br>
+            <strong>api/home/</strong> [name='apis-description'] - Home endpoint for API description<br>
+            <br>
+            <strong>api/login/</strong> [name='user-login'] - User login endpoint<br>
+            - Provide user credentials (username and password) or mobile number (to send OTP) in raw format (JSON)<br>
+            - If the user doesn't exist and login is done with a mobile number, a user will be automatically created with empty fields<br>
+            - Example:<br>
+            <pre>{
+    "phone_number": "+917601086020"
+}</pre>
+            <br>
+            <strong>api/validate-otp/</strong> [name='otp-validation'] - Verify OTP endpoint after providing the mobile number in the login endpoint<br>
+            <br>
+            <strong>api/logout/</strong> [name='user-logout'] - User logout endpoint (optional, can be handled client-side)<br>
+            <br>
+            <strong>api/signup/</strong> [name='user-signup'] - User signup endpoint<br>
+            - Provide credentials like username, email, phone number, and password<br>
+            <br>
+            <strong>api/Restos/</strong> [name='Restos'] - Fetch all restaurant details (permissions: all)<br>
+            <br>
+            <strong>api/products/</strong> [name='products'] - Fetch specific product details of a restaurant based on the resto_id (permissions: authenticated)<br>
+            - Example: <em>api/products/?resto_id=&lt;resto_id&gt;</em><br>
+            <br>
+            <strong>api/restaurants/</strong> [name='restaurant-search'] - Search for restaurants using a search bar (permissions: all)<br>
+            - Example: <em>api/restaurants/?resto_name=&lt;resto_name&gt;</em><br>
         </p>
     </div>
 </body>
-
 </html>
