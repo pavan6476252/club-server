@@ -16,13 +16,16 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import viewsets
 import asyncio
+from google.auth.transport import requests
+from django.contrib.auth.models import User
+from rest_framework_simplejwt.views import TokenObtainPairView
 from asgiref.sync import sync_to_async
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from twilio.rest import Client
 import random
 from django.contrib.auth import authenticate
-
+from google.oauth2 import id_token
 def home(request):
 
     return render(request,'index.html')
@@ -43,6 +46,33 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
         self.serializer_class.request = request
         return super().post(request, *args, **kwargs)
+
+class Google_oauth(APIView):
+    serializer_class = CustomTokenObtainPairSerializer
+
+    def post(self, request, *args, **kwargs):
+        self.serializer_class.request = request
+
+        # Retrieve the Google ID token from the request
+        google_token = request.data.get('google_token')
+        CLIENT_ID = '1082350793346-j6k8k71k21u5gpt4299sfukdk4hg7r98.apps.googleusercontent.com'  # Replace with your client ID
+
+        try:
+            # Verify the Google ID token
+            id_info = id_token.verify_oauth2_token(google_token, requests.Request(), CLIENT_ID)
+
+            # Retrieve or create the user based on the email
+            user, created = User.objects.get_or_create(email=id_info['email'])
+
+            # Generate the token pair
+            refresh = self.get_token(user)
+            data = {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }
+            return Response(data)
+        except ValueError:
+            return Response({'detail': 'Invalid Google token'}, status=status.HTTP_400_BAD_REQUEST)
 
 @method_decorator(csrf_exempt, name='dispatch')
 class UserSignupView(APIView):
