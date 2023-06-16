@@ -113,7 +113,6 @@ class ProductList(APIView):
 
 
 
-
 class RestaurantSearch(APIView):
     # permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]

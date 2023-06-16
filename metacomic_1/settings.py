@@ -27,7 +27,7 @@ SECRET_KEY = "django-insecure-kuve**!%o=xua)p1mwe=wv&gk7=_%u%yaw8ax66&67@bcl1bsb
 DEBUG = True
 
 # ALLOWED_HOSTS = ["*"]
-ALLOWED_HOSTS = ['club-production.up.railway.app','localhost']
+ALLOWED_HOSTS = ['club-production.up.railway.app','localhost','127.0.0.1']
 
 
 
@@ -56,7 +56,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = "metacomic_1.urls"
@@ -78,8 +78,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "metacomic_1.wsgi.application"
-# ASGI_APPLICATION = "metacomic_1.asgi.application"
+# WSGI_APPLICATION = "metacomic_1.wsgi.application"
+ASGI_APPLICATION = "metacomic_1.asgi.application"
 
 
 REST_FRAMEWORK = {
@@ -147,8 +147,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = "static/"
-
+STATICFILES_DIRS = [BASE_DIR/'static']
+STATIC_ROOT = 'staticfiles'
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+CORS_ALLOWED_ALL_ORIGINS = True

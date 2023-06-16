@@ -2,15 +2,17 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 import uuid
+from django.core.validators import RegexValidator
 
 class User(AbstractUser):
     uuid = models.UUIDField(unique=True, default=uuid.uuid4)
-    phone_number = models.CharField(max_length=15)
+    phone_regex = RegexValidator( regex = r'^\+?1?\d{9,14}$', message = "Phone number must be entered in the form of +919999999999.")
+    phone_number = models.CharField(validators=[phone_regex],max_length=15)
     created_at = models.DateTimeField(auto_now_add=True)
     # Add any other fields or methods you need
 
     def __str__(self):
-        return self.username
+        return self.uuid
 
 
 class Customers(models.Model):
