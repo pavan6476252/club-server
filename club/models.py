@@ -12,7 +12,7 @@ class User(AbstractUser):
     # Add any other fields or methods you need
 
     def __str__(self):
-        return str(self.uuid)
+        return str(self.username)
 
 
 class Customers(models.Model):
@@ -20,6 +20,7 @@ class Customers(models.Model):
     is_membership = models.BooleanField()
     photo_url = models.CharField(max_length=255)
     location = models.CharField(max_length=255)
+    
 
 
 class RestoOwners(models.Model):
@@ -27,6 +28,7 @@ class RestoOwners(models.Model):
     is_membership = models.BooleanField()
     photo_url = models.CharField(max_length=255)
     location = models.CharField(max_length=255)
+
 
 class Restos(models.Model):
     MEMBERSHIP_CHOICES = [
@@ -45,7 +47,8 @@ class Restos(models.Model):
     view_rate = models.IntegerField()
     resto_registered_at = models.DateTimeField(auto_now_add=True)
     membership = models.CharField(choices=MEMBERSHIP_CHOICES, max_length=255,default=0)
-
+    def __str__(self):
+        return str(self.resto_name)
 
 class Events(models.Model):
     event_id = models.AutoField(primary_key=True)
