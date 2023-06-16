@@ -69,12 +69,17 @@ class Posts(models.Model):
     resto_id = models.ForeignKey(Restos, on_delete=models.CASCADE)
 
 
+
 class Bookings(models.Model):
     booking_id = models.AutoField(primary_key=True)
     resto_id = models.ForeignKey(Restos, on_delete=models.CASCADE)
     uid = models.ForeignKey(User, on_delete=models.CASCADE)
-    booking_date = models.DateTimeField()
-    product_list=models.JSONField(default=None)
+    booking_date = models.DateTimeField(auto_now_add=True)
+    product_list = models.JSONField(default=None)
+
+    def __str__(self):
+        return str(self.booking_id)
+
 
 
 
