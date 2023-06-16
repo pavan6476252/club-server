@@ -12,7 +12,7 @@ class User(AbstractUser):
     # Add any other fields or methods you need
 
     def __str__(self):
-        return self.uuid
+        return self.get_full_name
 
 
 class Customers(models.Model):
