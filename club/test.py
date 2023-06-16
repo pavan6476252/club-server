@@ -39,3 +39,57 @@ else:
     print("Logout failed")
     print(response.json())
 # ======signup and automatic login
+
+
+#otp
+# import random
+# from django.views.decorators.csrf import csrf_exempt
+# from rest_framework.permissions import AllowAny
+# from rest_framework_simplejwt.tokens import RefreshToken
+# from rest_framework_simplejwt.views import TokenObtainPairView
+# from msg91sms import MSG91
+
+# @method_decorator(csrf_exempt, name='dispatch')
+# class UserLoginView(TokenObtainPairView):
+#     permission_classes = (AllowAny,)
+
+#     def post(self, request, *args, **kwargs):
+#         phone_number = request.data.get('phone_number')
+
+#         # Generate OTP
+#         otp = random.randint(100000, 999999)
+
+#         # Send OTP using MSG91 API
+#         msg91 = MSG91("YOUR_MSG91_AUTH_KEY")
+#         msg91.send_otp(phone_number, otp)
+
+#         # Save OTP in the User model
+#         user, created = User.objects.get_or_create(phone_number=phone_number)
+#         user.otp = otp
+#         user.save()
+
+#         return Response({'detail': 'OTP sent successfully.'})
+
+
+# @method_decorator(csrf_exempt, name='dispatch')
+# class OTPValidationView(APIView):
+#     permission_classes = (AllowAny,)
+
+#     def post(self, request, *args, **kwargs):
+#         phone_number = request.data.get('phone_number')
+#         otp = request.data.get('otp')
+
+#         # Retrieve User by phone number
+#         user = User.objects.filter(phone_number=phone_number).first()
+
+#         if not user:
+#             return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+#         if otp != user.otp:
+#             return Response({'detail': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
+
+#         # OTP validation successful, generate access and refresh tokens
+#         refresh = RefreshToken.for_user(user)
+#         access_token = str(refresh.access_token)
+
+#         return Response({'access_token': access_token, 'refresh_token': str(refresh)})

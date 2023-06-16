@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import UserLoginView ,UserSignupView,UserLogoutView,RestosViewSet,ProductList,RestaurantSearch
+from .views import UserLoginView ,UserSignupView,UserLogoutView,RestosViewSet,ProductList,RestaurantSearch,OTPValidationView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -11,6 +11,6 @@ urlpatterns = [
     path('Restos/',RestosViewSet.as_view(),name="Restos"),
     path('products/', ProductList.as_view(),name="products"),
     path('restaurants/', RestaurantSearch.as_view(), name='restaurant-search'),
-
-    
+    path('validate-otp/',OTPValidationView.as_view(),name="otp-validation"),
+   
 ]
