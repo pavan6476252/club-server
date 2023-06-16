@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from asgiref.sync import async_to_sync
 from django.http import JsonResponse
+from django.shortcuts import render
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User,Restos,Products
@@ -21,8 +22,13 @@ from django.views.decorators.csrf import csrf_exempt
 from twilio.rest import Client
 import random
 from django.contrib.auth import authenticate
-from google.oauth2 import id_token
-from google.auth.transport import requests
+
+def home(request):
+
+    return render(request,'index.html')
+
+
+
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
