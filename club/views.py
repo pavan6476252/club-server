@@ -3,7 +3,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from asgiref.sync import async_to_sync
 from django.http import JsonResponse
-
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User,Restos,Products
@@ -19,6 +18,11 @@ import asyncio
 from asgiref.sync import sync_to_async
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from twilio.rest import Client
+import random
+from django.contrib.auth import authenticate
+from google.oauth2 import id_token
+from google.auth.transport import requests
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -48,8 +52,77 @@ class UserSignupView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @method_decorator(csrf_exempt, name='dispatch')
-class UserLoginView(CustomTokenObtainPairView):
+class UserLoginView(TokenObtainPairView):
     permission_classes = (AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        phone_number = request.data.get('phone_number')
+
+        if username and password:
+            # Authenticate with username/password
+            user = authenticate(username=username, password=password)
+
+            if user is None:
+                return Response({'detail': 'Invalid credentials.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        elif phone_number:
+            # Generate OTP
+            otp = random.randint(100000, 999999)
+
+            # Send OTP using Twilio
+            account_sid = 'AC8e6211196ebb5f125600af5880be86d0'
+            auth_token = '1282dc84a3634ad65b474ba68df6a755'
+            twilio_phone_number = '+14066938661'
+
+            client = Client(account_sid, auth_token)
+            message = client.messages.create(
+                body=f'Your OTP is: {otp}',
+                from_=twilio_phone_number,
+                to=phone_number
+            )
+
+            # Save OTP in the User model
+            user, created = User.objects.get_or_create(phone_number=phone_number,username="Guest")
+            user.otp = otp
+            user.save()
+
+        else:
+            return Response({'detail': 'Invalid request.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if user is not None:
+            return Response({'detail': 'OTP sent successfully.'})
+
+        return Response({'detail': 'Invalid credentials or phone number.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class OTPValidationView(APIView):
+    permission_classes = (AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+        phone_number = request.data.get('phone_number')
+        otp = request.data.get('otp')
+
+        # Retrieve User by phone number
+        user = User.objects.filter(phone_number=phone_number).first()
+
+        if not user:
+            return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if otp != user.otp:
+            return Response({'detail': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # OTP validation successful, generate access and refresh tokens
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+
+        # Clear OTP
+        user.otp = None
+        user.save()
+
+        return Response({'access_token': access_token, 'refresh_token': str(refresh)})
 
 
 class UserLogoutView(APIView):
