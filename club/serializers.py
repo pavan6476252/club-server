@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import User,Restos,Products,Bookings, BookingProduct
 
-
+import uuid
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -30,26 +30,33 @@ class BookingProductSerializer(serializers.ModelSerializer):
         model = BookingProduct
         fields = ['product_id', 'quantity']
 
-class BookingsSerializer(serializers.ModelSerializer):
-    product_list = BookingProductSerializer(many=True)
-
-    class Meta:
-        model = Bookings
-        fields = ['uid', 'resto_id', 'product_list']
+class BookingsSerializer(serializers.Serializer):
+    uid = serializers.UUIDField()
+    resto_id = serializers.PrimaryKeyRelatedField(queryset=Restos.objects.all())
+    product_list = serializers.ListField(child=serializers.DictField(child=serializers.IntegerField()))
 
     def create(self, validated_data):
-        product_list_data = validated_data.pop('product_list')
-        booking = Bookings.objects.create(**validated_data)
+        uid = validated_data['uid']
+        resto_id = validated_data['resto_id']
+        product_list = validated_data['product_list']
 
-        for product_data in product_list_data:
-            product_id = product_data.get('product_id')
+        try:
+            user = User.objects.get(uuid=uid)
+        except User.DoesNotExist:
+            raise serializers.ValidationError({'uid': 'Invalid uid.'})
+        except Restos.DoesNotExist:
+            raise serializers.ValidationError({'resto_id': 'Invalid resto_id.'})
+
+        booking = Bookings.objects.create(uid=user, resto_id=resto_id)
+        for product_data in product_list:
+            product_id = product_data.get('product')
             quantity = product_data.get('quantity')
+            if product_id is not None and quantity is not None:
+                try:
+                    product = Products.objects.get(pk=product_id)
+                except Products.DoesNotExist:
+                    raise serializers.ValidationError({'product_id': f"Invalid product_id: {product_id}"})
 
-            try:
-                product = Products.objects.get(product_id=product_id)
                 BookingProduct.objects.create(booking=booking, product=product, quantity=quantity)
-            except Products.DoesNotExist:
-                pass
 
         return booking
-

@@ -120,9 +120,17 @@ class Bookings(models.Model):
     resto_id = models.ForeignKey(Restos, on_delete=models.CASCADE)
     booking_date = models.DateTimeField(default=timezone.now)
     product_list = models.ManyToManyField(Products, through='BookingProduct')
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
 
     def __str__(self):
         return str(self.booking_id)
+
+    def calculate_total_price(self):
+        total_price = sum(
+            booking_product.quantity * booking_product.product.product_price
+            for booking_product in self.bookingproduct_set.all()
+        )
+        self.total_price = total_price
 
 
 class BookingProduct(models.Model):
