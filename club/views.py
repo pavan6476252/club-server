@@ -6,8 +6,9 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import User,Restos,Products
-from .serializers import UserSerializer,RestosSerializer,ProductSerializer
+from .models import Restos,Products,Bookings,BookingProduct
+# from club.models import User  # Import your custom User model
+from .serializers import UserSerializer,RestosSerializer,ProductsSerializer,BookingProductSerializer,BookingsSerializer
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -17,17 +18,18 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import viewsets
 import asyncio
 from google.auth.transport import requests
-from django.contrib.auth.models import User
 from rest_framework_simplejwt.views import TokenObtainPairView
 from asgiref.sync import sync_to_async
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from twilio.rest import Client
-import random
+import random,uuid
 from django.contrib.auth import authenticate
 from google.oauth2 import id_token
-def home(request):
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
+def home(request):
     return render(request,'index.html')
 
 
@@ -216,7 +218,7 @@ class ProductList(APIView):
     def get(self, request, format=None):
         resto_id = request.query_params.get('resto_id')
         queryset = Products.objects.filter(resto_id=resto_id)
-        serializer = ProductSerializer(queryset, many=True)
+        serializer = ProductsSerializer(queryset, many=True)
         return Response(serializer.data)
 
 
@@ -235,14 +237,25 @@ class RestaurantSearch(APIView):
         except Restos.DoesNotExist:
             return Response({'error': 'Restaurant not found'}, status=404)
 
-    
+class BookingsAPIView(APIView):
+    def post(self, request):
+        uid = request.data.get('uid')
+        resto_id = request.data.get('resto_id')
+        product_list = request.data.get('product_list')
 
+        try:
+            user = User.objects.get(uuid=uuid.UUID(uid))
+            resto = Restos.objects.get(resto_id=resto_id)
+        except (User.DoesNotExist, Restos.DoesNotExist):
+            return Response({'error': 'Invalid uid or resto_id.'}, status=status.HTTP_400_BAD_REQUEST)
 
+        serializer = BookingsSerializer(data={'uid': user.pk, 'resto_id': resto_id, 'product_list': product_list})
+        if serializer.is_valid():
+            booking = serializer.save()
+            return Response({'booking_id': booking.booking_id}, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-
-
-   
 def csrf_failure_view(request, reason=""):
     # Your view logic here
     # Handle the CSRF failure and provide an appropriate response

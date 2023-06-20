@@ -1,5 +1,7 @@
 from rest_framework import serializers
-from .models import User,Restos,Products
+from .models import User,Restos,Products,Bookings, BookingProduct
+
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,27 +16,40 @@ class RestosSerializer(serializers.ModelSerializer):
     class Meta:
         model = Restos
         fields = '__all__'
-class BookingSerializer(serializers.Serializer):
-    resto_uuid = serializers.UUIDField()
-    user_uuid = serializers.UUIDField()
 
-    def validate(self, data):
-        resto_uuid = data.get('resto_uuid')
-        user_uuid = data.get('user_uuid')
 
-        # Perform additional validations here
-        # Example: Check if the user has the required permissions
-        user = User.objects.filter(uid=user_uuid).first()
-        if not user:
-            raise serializers.ValidationError("Invalid user UUID.")
-        
-        if not user.has_permission('book_restaurant'):
-            raise serializers.ValidationError("User does not have permission to book a restaurant.")
-
-        # You can add more validations based on your requirements
-
-        return data
-class ProductSerializer(serializers.ModelSerializer):
+class ProductsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Products
         fields = '__all__'
+
+
+
+class BookingProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BookingProduct
+        fields = ['product_id', 'quantity']
+
+class BookingsSerializer(serializers.ModelSerializer):
+    product_list = BookingProductSerializer(many=True)
+
+    class Meta:
+        model = Bookings
+        fields = ['uid', 'resto_id', 'product_list']
+
+    def create(self, validated_data):
+        product_list_data = validated_data.pop('product_list')
+        booking = Bookings.objects.create(**validated_data)
+
+        for product_data in product_list_data:
+            product_id = product_data.get('product_id')
+            quantity = product_data.get('quantity')
+
+            try:
+                product = Products.objects.get(product_id=product_id)
+                BookingProduct.objects.create(booking=booking, product=product, quantity=quantity)
+            except Products.DoesNotExist:
+                pass
+
+        return booking
+
