@@ -243,8 +243,35 @@ class BookingsAPIView(APIView):
         if serializer.is_valid():
             booking = serializer.save()
             booking.calculate_total_price()  # Calculate total price
-            return Response({'booking_id': booking.booking_id, 'total_price': booking.total_price},
-                            status=status.HTTP_201_CREATED)
+
+            # Get the user details who made the booking
+            user = User.objects.get(uuid=booking.uid.uuid)
+            user_data = {
+                'user_id': user.uuid,
+                'username': user.username,
+                'phone_number': user.phone_number,  # Replace 'phone_number' with the actual field name
+            }
+
+            # Get the product details associated with the booking
+            product_details = []
+            booking_products = BookingProduct.objects.filter(booking=booking)
+            for booking_product in booking_products:
+                product_details.append({
+                    'product_id': booking_product.product.product_id,
+                    'product_name': booking_product.product.product_name,
+                    'quantity': booking_product.quantity,
+                    # Add other product details as needed
+                })
+
+            response_data = {
+                'booking_id': booking.booking_id,
+                'total_price': booking.total_price,
+                'user_data': user_data,
+                'product_details': product_details,
+            }
+
+            return Response(response_data, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 def csrf_failure_view(request, reason=""):
