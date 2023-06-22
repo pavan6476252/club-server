@@ -1,7 +1,7 @@
 import os
 import sys
 
-if __name__ == '__main__':
+def main():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'metacomic_1.settings')
 
     try:
@@ -19,3 +19,6 @@ if __name__ == '__main__':
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
+
+if __name__ == '__main__':
+    main()

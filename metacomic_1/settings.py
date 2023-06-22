@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'corsheaders',
     'channels',
+    'daphne',
 ]
 
 MIDDLEWARE = [
@@ -82,7 +83,11 @@ TEMPLATES = [
 # WSGI_APPLICATION = "metacomic_1.wsgi.application"
 ASGI_APPLICATION = "metacomic_1.asgi.application"
 
-
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',

@@ -3,6 +3,10 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.utils import timezone
 import uuid
+from django.db.models.signals import post_save
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+
 
 class CustomUserManager(UserManager):
     pass
@@ -131,7 +135,31 @@ class Bookings(models.Model):
             for booking_product in self.bookingproduct_set.all()
         )
         self.total_price = total_price
-
+    def notify_resto_owner(self):
+        channel_layer = get_channel_layer()
+        group_name = f'resto_{self.resto_id.uid.uid}_owners'  # Modified to use resto_id.uid
+        async_to_sync(channel_layer.group_send)(
+            group_name,
+            {
+                'type': 'notification_message',
+                'booking_id': str(self.booking_id),
+                'total_price': str(self.total_price),
+                'user_data': {
+                    'user_id': str(self.uid.id),
+                    'username': self.uid.username,
+                    'phone_number': self.uid.phone_number
+                },
+                'product_details': [
+                    {
+                        'product_id': str(booking_product.product.product_id),
+                        'product_name': booking_product.product.product_name,
+                        'quantity': booking_product.quantity
+                    }
+                    for booking_product in self.bookingproduct_set.all()
+                ]
+            }
+        )
+        print("step-1")
 
 class BookingProduct(models.Model):
     booking = models.ForeignKey(Bookings, on_delete=models.CASCADE)
@@ -140,3 +168,15 @@ class BookingProduct(models.Model):
 
     def __str__(self):
         return f"{self.booking.booking_id} - {self.product.product_name} - {self.booking.uid.username}"
+
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    resto_owner = models.ForeignKey(RestoOwners, on_delete=models.CASCADE)
+    booking = models.ForeignKey(Bookings, on_delete=models.CASCADE)
+    status=models.CharField(max_length=255,null=True,default=None)
+    message = models.CharField(max_length=255,null=True,default=None)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.message
