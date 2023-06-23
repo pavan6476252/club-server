@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    body{
+        background-color: black;
+        color: green;
+    }
+    p{
+        color: green;
+    }
+    h1{
+        color: red;
+        text-decoration: underline;
+    }
+    em{
+        color: green;
+    }
+    strong{
+        font-weight: bolder;
+        font-size: larger;
+        color: rgb(4, 193, 4);
+    }
+</style>
+<body>
+    <h1><span class="highlight">APIs Description</span></h1>
+        <p>
+            <strong>admin/</strong> <br> - Django admin panel<br>
+            <strong>api/home/</strong> <br> [name='apis-description'] - Home endpoint for API description<br>
+            <br>
+            <strong>api/login/</strong> <br> [name='user-login'] - User login endpoint<br>
+            - Provide user credentials (username and password) or mobile number (to send OTP) in raw format (JSON)<br>
+            - If the user doesn't exist and login is done with a mobile number, a user will be automatically created with empty fields<br>
+            - Example:<br>
+            <pre>{
+    "phone_number": "+917601086020"
+}</pre>
+            <br>
+            <strong>api/validate-otp/</strong> <br> [name='otp-validation'] - Verify OTP endpoint after providing the mobile number in the login endpoint<br>
+            <br>
+            <strong>api/logout/</strong> <br> [name='user-logout'] - User logout endpoint (optional, can be handled client-side)<br>
+            <br>
+            <strong>api/signup/</strong> <br> [name='user-signup'] - User signup endpoint<br>
+            - Provide credentials like username, email, phone number, and password<br>
+            <br>
+            <strong>api/Restos/</strong> <br> [name='Restos'] - Fetch all restaurant details (permissions: all)<br>
+            <br>
+            <strong>api/products/</strong> <br> [name='products'] - Fetch specific product details of a restaurant based on the resto_id (permissions: authenticated)<br>
+            - Example: <em>api/products/?resto_id=&lt;resto_id&gt;</em><br>
+            <br>
+            <strong>api/restaurants/</strong> <br> [name='restaurant-search'] - Search for restaurants using a search bar (permissions: all)<br>
+            - Example: <em>api/restaurants/?resto_name=&lt;resto_name&gt;</em><br>
+            <strong>api/google-login/</strong> <br> [name='name='google-login''] - google authenication (gopogle will generate a token and send post request with to verify the user and it gives back acess token for authenticationm <br>
+            -</em><br>
+            <strong>api/bookings/</strong> <br> [name='bookings'] - to generate the booking id<br>
+            - Example: <em>{
+                "resto_id": 1,
+                "uid": "4120e095-3dae-4d21-9044-2e8118059a05",
+                "product_list": [
+                  {
+                    "product": 1,
+                    "quantity": 2
+                  },
+                  {
+                    "product": 2,
+                    "quantity": 3
+                  }
+                ]
+              }
+              </em><br>
+        </p>
+</body>
+</html>

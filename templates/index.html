@@ -30,13 +30,13 @@
             font-weight: bold;
         }
 
-        .container {
+        /* .container {
             display: flex;
             flex-direction: column;
             align-items: flex-start;
             justify-content: center;
             height: 100vh;
-        }
+        } */
 
         /* Media Queries for 14-inch Laptops */
         @media only screen and (max-width: 14.9in) {
@@ -105,10 +105,39 @@
                 ]
               }
               </em><br>
-
-
-
         </p>
     </div>
 </body>
+<script>
+  // Create a WebSocket connection
+const socket = new WebSocket('ws://localhost:8000/ws/booking/notify/4734738-6662-4bca-80da-e2cbbd4e655b/');
+
+// Event handler for when the WebSocket connection is established
+socket.onopen = () => {
+  console.log('WebSocket connection established.');
+
+  // Send a message to the server (optional)
+  socket.send('Hello, server!');
+};
+
+// Event handler for incoming messages from the server
+socket.onmessage = (event) => {
+    console.log('message received')
+    const message = event.data;
+    console.log('Received message:', message);
+
+  // Handle the received message as needed
+};
+
+// Event handler for WebSocket connection errors
+socket.onerror = (error) => {
+  console.error('WebSocket error:', error);
+};
+
+// Event handler for when the WebSocket connection is closed
+socket.onclose = () => {
+  console.log('WebSocket connection closed.');
+};
+  
+</script>
 </html>

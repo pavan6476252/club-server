@@ -137,15 +137,17 @@ class Bookings(models.Model):
         self.total_price = total_price
     def notify_resto_owner(self):
         channel_layer = get_channel_layer()
-        group_name = f'resto_{self.resto_id.uid.uid}_owners'  # Modified to use resto_id.uid
+        group_name = f'resto_{self.resto_id.uid.uid.uuid}_owners'  # Modified to use resto_id.uid
+        print("step-1")
+
         async_to_sync(channel_layer.group_send)(
             group_name,
             {
-                'type': 'notification_message',
+                'type': 'notification_message',  # Add 'type' prefix
                 'booking_id': str(self.booking_id),
                 'total_price': str(self.total_price),
                 'user_data': {
-                    'user_id': str(self.uid.id),
+                    'user_id': str(self.uid.uuid),
                     'username': self.uid.username,
                     'phone_number': self.uid.phone_number
                 },
@@ -159,7 +161,7 @@ class Bookings(models.Model):
                 ]
             }
         )
-        print("step-1")
+
 
 class BookingProduct(models.Model):
     booking = models.ForeignKey(Bookings, on_delete=models.CASCADE)

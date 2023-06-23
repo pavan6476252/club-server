@@ -1,4 +1,5 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.db import database_sync_to_async
 import json
 
 class BookingNotificationConsumer(AsyncWebsocketConsumer):
@@ -21,7 +22,11 @@ class BookingNotificationConsumer(AsyncWebsocketConsumer):
             self.group_name,
             self.channel_name
         )
+        
+    
 
     async def notification_message(self, event):
-        # Send the notification message to the connected WebSocket consumer
+        
+        print("Received notification message:", event)
         await self.send(json.dumps(event))
+
