@@ -39,13 +39,13 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    'daphne',
     "django.contrib.staticfiles",
     'club',
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
     'channels',
-    'daphne',
 ]
 
 MIDDLEWARE = [
