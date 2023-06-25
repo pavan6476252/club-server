@@ -3,12 +3,13 @@ from channels.db import database_sync_to_async
 import json
 
 class BookingNotificationConsumer(AsyncWebsocketConsumer):
-    # print("step-2")
+    print("step-3")
     async def connect(self):
         self.resto_owner_id = self.scope['url_route']['kwargs']['resto_owner_id']
 
         # Join the group specific to the resto_owner
         self.group_name = f'resto_{self.resto_owner_id}_owners'
+        print(self.group_name)
         await self.channel_layer.group_add(
             self.group_name,
             self.channel_name

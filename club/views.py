@@ -243,7 +243,7 @@ class BookingsAPIView(APIView):
         if serializer.is_valid():
             booking = serializer.save()
             booking.calculate_total_price()  # Calculate total price
-
+            
             # Get the user details who made the booking
             user = User.objects.get(uuid=booking.uid.uuid)
             user_data = {
