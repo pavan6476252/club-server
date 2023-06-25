@@ -14,7 +14,7 @@ def booking_post_save(sender, instance, created, **kwargs):
             status='PENDING',
             message='New booking request',
         )
-        instance.notify_resto_owner()
+        instance.booking_product.notify_resto_owner()
     else:
         # Update the notification status when a booking is updated
         notification = Notification.objects.get(booking=instance)

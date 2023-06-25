@@ -135,33 +135,6 @@ class Bookings(models.Model):
             for booking_product in self.bookingproduct_set.all()
         )
         self.total_price = total_price
-    def notify_resto_owner(self):
-        channel_layer = get_channel_layer()
-        group_name = f'resto_{self.resto_id.uid.uid.uuid}_owners'  # Modified to use resto_id.uid
-        print("step-1")
-
-        async_to_sync(channel_layer.group_send)(
-            group_name,
-            {
-                'type': 'notification_message',  # Add 'type' prefix
-                'booking_id': str(self.booking_id),
-                'total_price': str(self.total_price),
-                'user_data': {
-                    'user_id': str(self.uid.uuid),
-                    'username': self.uid.username,
-                    'phone_number': self.uid.phone_number
-                },
-                'product_details': [
-                    {
-                        'product_id': str(booking_product.product.product_id),
-                        'product_name': booking_product.product.product_name,
-                        'quantity': booking_product.quantity
-                    }
-                    for booking_product in self.bookingproduct_set.all()
-                ]
-            }
-        )
-
 
 class BookingProduct(models.Model):
     booking = models.ForeignKey(Bookings, on_delete=models.CASCADE)
@@ -170,6 +143,35 @@ class BookingProduct(models.Model):
 
     def __str__(self):
         return f"{self.booking.booking_id} - {self.product.product_name} - {self.booking.uid.username}"
+    def notify_resto_owner(self):
+        channel_layer = get_channel_layer()
+        group_name = f'resto_{self.resto_id.uid.uid.uuid}_owners'  
+        print(group_name)# Modified to use resto_id.uid
+        print("step-2")
+
+        async_to_sync(channel_layer.group_send)(
+            group_name,
+            {
+                'type': 'notification_message',  # Add 'type' prefix
+                'booking_id': str(self.booking.booking_id),
+                'total_price': str(self.booking.total_price),
+                'user_data': {
+                    'user_id': str(self.booking.uid.uuid),
+                    'username': self.booking.uid.username,
+                    'phone_number': self.booking.uid.phone_number
+                },
+                'product_details': [
+                    {
+                        'product_id': str(self.product.product_id),
+                        'product_name': self.product.product_name,
+                        'quantity': self.quantity
+                    }
+                    for booking_product in self.all()
+                ]
+            }
+        )
+
+
 
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

@@ -3,7 +3,7 @@ from channels.db import database_sync_to_async
 import json
 
 class BookingNotificationConsumer(AsyncWebsocketConsumer):
-    print("step-2")
+    # print("step-2")
     async def connect(self):
         self.resto_owner_id = self.scope['url_route']['kwargs']['resto_owner_id']
 
